@@ -1,12 +1,12 @@
 body {
   font-family: "Source Sans Pro", sans-serif;
   font-size: 16px;
-  padding: 1em;
+  padding: 0;
+  margin: 0;
 }
 
 h1 {
   font-size: 3em;
-  margin: 0.25em 0;
 }
 
 h3 {
@@ -16,4 +16,59 @@ h3 {
 
 p {
   font-size: 1em;
+}
+
+.header {
+  padding: 3rem;
+  background-color: rgb(194, 142, 214);
+  text-align: center;
+}
+
+.thanos {
+  font-size: 1.3rem;
+  text-align: center;
+  font-weight: lighter;
+  color: grey;
+  margin-top: 3rem;
+}
+
+.stone-container {
+  background-color: rgb(207, 191, 97);
+  margin: 2rem auto 0;
+  height: 4rem;
+  width: 19rem;
+  border-radius: 1rem;
+}
+
+.stone {
+  height: 2rem;
+  width: 2rem;
+  border: black 1px;
+  border-radius: .5rem;
+  display: inline-block;
+  margin: 1rem .5rem;
+}
+
+.reality {
+  background-color: red;
+}
+
+.soul {
+  background-color: orange;
+}
+
+.mind {
+  background-color: yellow;
+}
+
+.time {
+  background-color: green;
+}
+
+.space {
+  background-color: blue;
+}
+
+.power {
+  background-color: purple;
 }
