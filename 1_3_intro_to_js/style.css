@@ -31,6 +31,7 @@ button {
   color: green;
 }
 
+
 .header {
   padding: 3rem;
   background-color: rgb(251, 225, 252);
@@ -41,3 +42,27 @@ button {
   font-size: 2rem;
 }
 
+.name-form {
+  margin: 1.5rem 0;
+  padding: 2rem;
+  background-color: lavender;
+}
+
+.name-form input {
+  margin: 0.5rem;
+}
+
+.obj-display {
+  background-color: rgba(255, 255, 255, 0.555);
+  width: 20rem;
+  margin: 1rem auto;
+  padding: 1rem;
+  border-radius: 2rem;
+  text-align: left;
+  color: darkgreen;
+}
+
+.obj-display p {
+  font-family: monospace;
+  font-size: 0.9rem;
+}
