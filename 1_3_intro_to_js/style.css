@@ -10,6 +10,12 @@ h1 {
   font-size: 3em;
 }
 
+h2 {
+  color: grey;
+  font-weight: 500;
+  margin: 2rem 0;
+}
+
 h3 {
   font-size: 2em;
   margin: 0.25em 0;
@@ -24,17 +30,13 @@ section {
   padding: 2em 0;
 }
 
-button {
-  font-size: 1.25rem;
-  background-color: white;
-  border-radius: 2rem;
-  color: green;
-}
-
-
 .header {
   padding: 3rem;
   background-color: rgb(251, 225, 252);
+}
+
+.counter-container {
+  padding: 2rem 0;
 }
 
 .counter-display {
@@ -42,9 +44,16 @@ button {
   font-size: 2rem;
 }
 
+.add-btn {
+  font-size: 1.25rem;
+  background-color: white;
+  border-radius: 2rem;
+  color: green;
+}
+
 .name-form {
   margin: 1.5rem 0;
-  padding: 2rem;
+  padding: 2.5rem 0;
   background-color: lavender;
 }
 
@@ -65,4 +74,12 @@ button {
 .obj-display p {
   font-family: monospace;
   font-size: 0.9rem;
+}
+
+.d3-play {
+  padding: 3rem 0 15rem;
+}
+
+.d3-play button {
+  margin: 1.5rem;
 }
