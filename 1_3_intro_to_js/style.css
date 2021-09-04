@@ -1,7 +1,9 @@
 body {
   font-family: "Source Sans Pro", sans-serif;
   font-size: 16px;
-  padding: 1em;
+  padding: 0;
+  margin: 0;
+  text-align: center;
 }
 
 h1 {
@@ -21,3 +23,21 @@ p {
 section {
   padding: 2em 0;
 }
+
+button {
+  font-size: 1.25rem;
+  background-color: white;
+  border-radius: 2rem;
+  color: green;
+}
+
+.header {
+  padding: 3rem;
+  background-color: rgb(251, 225, 252);
+}
+
+.counter-display {
+  margin: 1.5rem;
+  font-size: 2rem;
+}
+
