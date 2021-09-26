@@ -1,8 +1,11 @@
 /* CONSTANTS AND GLOBALS */
 const width = window.innerWidth *.8;
 const height = 300;
+
 const pastel1Colors = d3.scaleOrdinal(d3.schemePastel1);
 const pastel2Colors = d3.scaleOrdinal(d3.schemePastel2);
+const accentColors = d3.scaleOrdinal(d3.schemeAccent);
+const schemeSet3Colors = d3.scaleOrdinal(d3.schemeSet3);
 
 /* LOAD DATA */
 d3.csv('./swiftSales.csv', d3.autoType)
@@ -45,7 +48,7 @@ d3.csv('./swiftSales.csv', d3.autoType)
     .attr("height", yScale.bandwidth())
     .attr("x", 0)
     .attr("y", d => yScale(d.album))
-    .attr("fill", pastel1Colors)
+    .attr("fill", schemeSet3Colors)
     .attr("transform", "translate(100, 0)");
 
     // xAxis labels
