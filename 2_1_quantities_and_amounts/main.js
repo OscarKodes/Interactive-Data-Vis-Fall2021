@@ -1,6 +1,6 @@
 /* CONSTANTS AND GLOBALS */
 const width = window.innerWidth *.8;
-const height = 300;
+const height = 400;
 
 const pastel1Colors = d3.scaleOrdinal(d3.schemePastel1);
 const pastel2Colors = d3.scaleOrdinal(d3.schemePastel2);
@@ -15,7 +15,7 @@ d3.csv('./swiftSales.csv', d3.autoType)
     /* SCALES */
     /** This is where you should define your scales from data to pixel space */
     const xScale = d3.scaleLinear()
-    .domain([0, d3.max(data, d => d.usSales)])
+    .domain([0, d3.max(data, d => d.usSales) + 1])
     .range([0, width]) // visual variable
 
     const yScale = d3.scaleBand()
@@ -49,15 +49,16 @@ d3.csv('./swiftSales.csv', d3.autoType)
     .attr("x", 0)
     .attr("y", d => yScale(d.album))
     .attr("fill", schemeSet3Colors)
-    .attr("transform", "translate(100, 0)");
+    .attr("transform", "translate(101, 1)")
+    .attr("stroke", "grey");
 
     // xAxis labels
     svg.append("g")
-    .attr("transform", "translate(100, 300)")
+    .attr("transform", "translate(100, 401)")
     .call(xAxis);
     
     // yAxis labels
     svg.append("g")
-    .attr("transform", "translate(100, 0)")
+    .attr("transform", "translate(100, 1)")
     .call(yAxis);
   });
