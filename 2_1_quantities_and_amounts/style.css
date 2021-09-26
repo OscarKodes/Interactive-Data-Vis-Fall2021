@@ -1,7 +1,8 @@
 body {
   font-family: "Source Sans Pro", sans-serif;
   font-size: 16px;
-  padding: 1em;
+  margin: 0;
+  text-align: center;
 }
 
 h1 {
@@ -11,9 +12,26 @@ h1 {
 
 h3 {
   font-size: 2em;
-  margin: 0.25em 0;
+  margin: 0;
 }
 
 p {
   font-size: 1em;
+}
+
+.header {
+  background-color: rgb(226, 226, 191);
+  margin: 0;
+  height: 4rem;
+  padding: 5rem 0 3rem;
+  text-align: center;
+}
+
+#container {
+  margin: 2rem 2rem 3rem;
+}
+
+.chart-title {
+  font-size: 1.75rem;
+  margin-top: 3rem;
 }
