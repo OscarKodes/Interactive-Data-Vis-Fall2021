@@ -18,15 +18,17 @@ d3.csv("Movie-Ratings.csv", d3.autoType).then(data => {
     .domain([0, d3.max(data.map(d => d["Rotten Tomatoes Ratings %"]))])
     .range([margin.left, width - margin.right])
 
-    // yscale - linear,count
+  // yscale - linear,count
   const yScale = d3.scaleLinear()
     .domain([0, d3.max(data, d => d["Audience Ratings %"])])
     .range([height - margin.bottom, margin.top])
 
+  // color scale
   const colorScale = d3.scaleOrdinal()
     .domain(["Comedy", "Drama", "Adventure", "Thriller", "Horror", "Action", "Romance"])
     .range(["Yellow", "Red", "Green", "Purple", "Black", "Blue", "Pink"])
 
+  // size scale
   const sizeScale = d3.scaleLinear()
     .domain([1, d3.max(data, d => d["Budget (million $)"])])
     .range([2, 20]);
@@ -38,7 +40,7 @@ d3.csv("Movie-Ratings.csv", d3.autoType).then(data => {
     .attr("width", width)
     .attr("height", height)
 
-  // axis scales
+  // Axis Scales ---------------------
   const xAxis = d3.axisBottom(xScale)
   svg.append("g")
     .attr("transform", `translate(0,${height - margin.bottom})`)
@@ -49,25 +51,31 @@ d3.csv("Movie-Ratings.csv", d3.autoType).then(data => {
     .attr("transform", `translate(${margin.left},0)`)
     .call(yAxis);
 
-  // circles
+  // Circles ----------------
   const dot = svg
     .selectAll("circle")
     .data(data, d => d.Film) // second argument is the unique key for that row
     .join("circle")
-    .attr("cx", d => xScale(d["Rotten Tomatoes Ratings %"]))
-    .attr("cy", d => yScale(d["Audience Ratings %"]))
+    .attr("transform", d => `translate(${xScale(d["Rotten Tomatoes Ratings %"])},
+                                        ${yScale(d["Audience Ratings %"])})`)
     .attr("r", d => sizeScale(d["Budget (million $)"]))
     .attr("fill", d => colorScale(d.Genre))
     .attr("stroke", "grey")
     .attr("opacity", "0.5")
     .on("mouseover", function(d, i) {
-      d3.select(this).transition().duration("100").style("opacity", 1)
+      d3.select(this)
+        .transition()
+        .duration("100")
+        .style("opacity", 1)
     })
     .on("mouseout", function(d, i) {
-      d3.select(this).transition().duration("200").style("opacity", 0.5)
+      d3.select(this)
+        .transition()
+        .duration("200")
+        .style("opacity", 0.5)
     });
 
-  // Labels
+  // Labels for Circles ---------------
   const text = svg
     .selectAll("text")
     .data(data)
@@ -78,9 +86,15 @@ d3.csv("Movie-Ratings.csv", d3.autoType).then(data => {
     .text(d => d.Film)
     .style("opacity", 0)
     .on("mouseover", function(d, i) {
-      d3.select(this).transition().duration("100").style("opacity", 1)
+      d3.select(this)
+        .transition()
+        .duration("100")
+        .style("opacity", 1)
     })
     .on("mouseout", function(d, i) {
-      d3.select(this).transition().duration("200").style("opacity", 0)
+      d3.select(this)
+        .transition()
+        .duration("200")
+        .style("opacity", 0)
     })
 });
