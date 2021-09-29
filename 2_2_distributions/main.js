@@ -40,16 +40,77 @@ d3.csv("Movie-Ratings.csv", d3.autoType).then(data => {
     .attr("width", width)
     .attr("height", height)
 
+
   // Axis Scales ---------------------
   const xAxis = d3.axisBottom(xScale)
+
   svg.append("g")
     .attr("transform", `translate(0,${height - margin.bottom})`)
     .call(xAxis);
   
   const yAxis = d3.axisLeft(yScale)
+
   svg.append("g")
     .attr("transform", `translate(${margin.left},0)`)
     .call(yAxis);
+
+  svg.append("text")
+    .attr("text-anchor", "end")
+    .attr("x", width)
+    .attr("y", height - 6)
+    .text("Rotten Tomatoes Ratings %");
+
+  svg.append("text")
+    .attr("text-anchor", "end")
+    .attr("y", 6)
+    .attr("dy", ".75em")
+    .attr("transform", "rotate(-90)")
+    .text("Audience Ratings %");
+
+
+  // Add the tooltip container to the vis container
+  // it's invisible and its position/contents are defined during mouseover
+  const tooltip = d3.select("#container")
+                    .append("div")
+                    .attr("class", "tooltip")
+                    .style("opacity", 0);
+
+  // tooltip mouseover event handler
+  const tipMouseover = function(event, d) {
+
+    let html  = "<b>Title: </b>" + d.Film + "<br/>" +
+                "<b>Genre: </b>" + d.Genre + "</span><br/>" +
+                "<b>Rotten Tomatoes: </b>" + d["Rotten Tomatoes Ratings %"] + "%<br/>" +
+                "<b>Audience Ratings: </b>" + d["Audience Ratings %"] + "%<br/>" + 
+                "<b>Budget:</b> $" + d["Budget (million $)"] + " million (USD)" + "<br>" +
+                "<b>Year: </b>" + d["Year of release"];
+
+    tooltip.html(html)
+      .style("left", (event.pageX + 0.5 * sizeScale(d["Budget (million $)"])) + "px")     
+      .style("top", (event.pageY + 0.5 * sizeScale(d["Budget (million $)"])) + "px")
+      .transition()
+        .duration(100) 
+        .style("opacity", .8)
+
+    // highlight the circles
+    d3.select(this)
+      .transition()
+      .duration(100)
+      .style("opacity", 1);
+  };
+
+  // tooltip mouseout event handler
+  let tipMouseout = function(d) {
+      tooltip.transition()
+          .duration(200) // ms
+          .style("opacity", 0); // don't care about position!
+
+      // Unhighlight circles
+      d3.select(this)
+      .transition()
+      .duration(200)
+      .style("opacity", 0.5);
+  };
 
   // Circles ----------------
   const dot = svg
@@ -60,41 +121,35 @@ d3.csv("Movie-Ratings.csv", d3.autoType).then(data => {
                                         ${yScale(d["Audience Ratings %"])})`)
     .attr("r", d => sizeScale(d["Budget (million $)"]))
     .attr("fill", d => colorScale(d.Genre))
-    .attr("stroke", "grey")
-    .attr("opacity", "0.5")
-    .on("mouseover", function(d, i) {
-      d3.select(this)
-        .transition()
-        .duration("100")
-        .style("opacity", 1)
-    })
-    .on("mouseout", function(d, i) {
-      d3.select(this)
-        .transition()
-        .duration("200")
-        .style("opacity", 0.5)
-    });
+    .attr("stroke", "black")
+    .attr("opacity", "0.4")
+    .on("mouseover", tipMouseover)
+    .on("mouseout", tipMouseout);
 
+  
   // Labels for Circles ---------------
-  const text = svg
-    .selectAll("text")
-    .data(data)
-    .enter()
-    .append("text")
-    .attr("x", d => xScale(d["Rotten Tomatoes Ratings %"]))
-    .attr("y", d => yScale(d["Audience Ratings %"]))
-    .text(d => d.Film)
-    .style("opacity", 0)
-    .on("mouseover", function(d, i) {
-      d3.select(this)
-        .transition()
-        .duration("100")
-        .style("opacity", 1)
-    })
-    .on("mouseout", function(d, i) {
-      d3.select(this)
-        .transition()
-        .duration("200")
-        .style("opacity", 0)
-    })
+
+  // Not used. Replaced by tooltips.
+
+  // const text = svg
+  //   .selectAll("text")
+  //   .data(data)
+  //   .enter()
+  //   .append("text")
+  //   .attr("x", d => xScale(d["Rotten Tomatoes Ratings %"]))
+  //   .attr("y", d => yScale(d["Audience Ratings %"]))
+  //   .text(d => d.Film)
+  //   .style("opacity", 0)
+  //   .on("mouseover", function(d) {
+  //     d3.select(this)
+  //       .transition()
+  //       .duration("100")
+  //       .style("opacity", 1)
+  //   })
+  //   .on("mouseout", function(d) {
+  //     d3.select(this)
+  //       .transition()
+  //       .duration("200")
+  //       .style("opacity", 0)
+  //   });
 });
