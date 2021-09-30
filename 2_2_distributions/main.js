@@ -29,9 +29,9 @@ d3.csv("Movie-Ratings.csv", d3.autoType).then(data => {
     .range(["Yellow", "Red", "Green", "Purple", "Black", "Blue", "Pink"])
 
   // size scale
-  const sizeScale = d3.scaleLinear()
+  const sizeScale = d3.scaleSqrt()
     .domain([1, d3.max(data, d => d["Budget (million $)"])])
-    .range([2, 20]);
+    .range([2, 16]);
 
   /* HTML ELEMENTS */
   // svg
@@ -78,19 +78,26 @@ d3.csv("Movie-Ratings.csv", d3.autoType).then(data => {
   // tooltip mouseover event handler
   const tipMouseover = function(event, d) {
 
-    let html  = "<b>Title: </b>" + d.Film + "<br/>" +
-                "<b>Genre: </b>" + d.Genre + "</span><br/>" +
-                "<b>Rotten Tomatoes: </b>" + d["Rotten Tomatoes Ratings %"] + "%<br/>" +
-                "<b>Audience Ratings: </b>" + d["Audience Ratings %"] + "%<br/>" + 
-                "<b>Budget:</b> $" + d["Budget (million $)"] + " million (USD)" + "<br>" +
-                "<b>Year: </b>" + d["Year of release"];
+    let html  = `<b>Title:</b> ${d.Film}<br/>
+                  <b>Genre:</b> ${d.Genre}</span><br/>
+                  <b>Rotten Tomatoes:</b> ${d["Rotten Tomatoes Ratings %"]}%<br/>
+                  <b>Audience Ratings:</b> ${d["Audience Ratings %"]}%<br/> 
+                  <b>Budget:</b> $${d["Budget (million $)"]} million (USD)<br>
+                  <b>Year:</b> ${d["Year of release"]}`;
+
+    let color = colorScale(d.Genre);
+    let size = sizeScale(d["Budget (million $)"]);
 
     tooltip.html(html)
-      .style("left", (event.pageX + 0.5 * sizeScale(d["Budget (million $)"])) + "px")     
-      .style("top", (event.pageY + 0.5 * sizeScale(d["Budget (million $)"])) + "px")
+      .style("left", ((d.Film.length >= 20 ? 
+                        event.pageX - 160 - ((d.Film.length - 19) * 5) : 
+                        event.pageX - 160) + "px"))  
+      .style("top", (event.pageY - 120 - 0.5 * size + "px"))
+      .style("border", `${color} solid 0.2rem`)
+      .style("outline", "1px solid black")
       .transition()
         .duration(100) 
-        .style("opacity", .8)
+        .style("opacity", .85)
 
     // highlight the circles
     d3.select(this)
@@ -114,9 +121,10 @@ d3.csv("Movie-Ratings.csv", d3.autoType).then(data => {
 
   // Circles ----------------
   const dot = svg
-    .selectAll("circle")
+    .selectAll(".dot")
     .data(data, d => d.Film) // second argument is the unique key for that row
     .join("circle")
+    .attr("class", "dot")
     .attr("transform", d => `translate(${xScale(d["Rotten Tomatoes Ratings %"])},
                                         ${yScale(d["Audience Ratings %"])})`)
     .attr("r", d => sizeScale(d["Budget (million $)"]))
