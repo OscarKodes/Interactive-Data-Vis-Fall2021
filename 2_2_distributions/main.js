@@ -12,6 +12,12 @@ d3.csv("Movie-Ratings.csv", d3.autoType).then(data => {
   // size = Budget (million $)
   // color = Genre
 
+  // First step: Sort movies by largest budgest to smallest budget, 
+  // so bigger movie dots are created first.
+  // So smaller movie dots aren't covered by bigger movie dots
+  data = data.sort((a, b) => b["Budget (million $)"] - a["Budget (million $)"]);
+
+
   /* SCALES */
   // xscale  - linear,count
   const xScale = d3.scaleLinear()
