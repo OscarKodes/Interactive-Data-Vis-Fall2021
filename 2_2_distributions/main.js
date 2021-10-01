@@ -1,12 +1,17 @@
 /* CONSTANTS AND GLOBALS */
-const height = window.innerHeight * 0.8,
-  width = window.innerWidth * 0.9, 
-  margin = {
+const height = window.innerHeight * 0.8;
+const margin = {
     top: 50,
     left: 50,
-    right: 150,
+    right: 200,
     bottom: 50
   };
+let width = window.innerWidth * 0.8;
+
+// Limiting the width, 
+// so the plot isn't stretched too much if have wide screen
+width = width > height ? height + margin.right : width;
+
 
 /* LOAD DATA */
 d3.csv("Movie-Ratings.csv", d3.autoType).then(data => {
@@ -27,7 +32,7 @@ d3.csv("Movie-Ratings.csv", d3.autoType).then(data => {
     .domain([0, d3.max(data, d => d["Audience Ratings %"])])
     .range([height - margin.top, margin.bottom])
 
-  // Placing genres and colors in arrays to be used in colorScale & Legend
+  // Placing genres and colors in variables to be reused in colorScale & Legend
   const allGenres = ["Comedy", "Drama", "Adventure", "Thriller", "Horror", "Action", "Romance"];
   const allColors = ["Yellow", "Red", "Green", "Purple", "Black", "Blue", "Pink"];
 
@@ -37,7 +42,7 @@ d3.csv("Movie-Ratings.csv", d3.autoType).then(data => {
 
   const sizeScale = d3.scaleSqrt()
     .domain([1, d3.max(data, d => d["Budget (million $)"])])
-    .range([2, 16]);
+    .range([3, 16]);
 
 
   /* HTML ELEMENTS ############################################## */
@@ -47,7 +52,6 @@ d3.csv("Movie-Ratings.csv", d3.autoType).then(data => {
     .append("svg")
     .attr("width", width)
     .attr("height", height)
-    .style("background-color", "lavender")
 
   // AXIS TICKS  ----------------------------------------------
   svg.append("g")
@@ -142,28 +146,77 @@ d3.csv("Movie-Ratings.csv", d3.autoType).then(data => {
     .on("mouseover", tipMouseover)
     .on("mouseout", tipMouseout);
 
-  // LEGEND ------------------------------------------------
+  // LEGENDS ------------------------------------------------
+
+  // Title for Genre Legend
+  svg.append("text")
+    .text("Genre:")
+    .attr("x", width - margin.right / 2 - 15)
+    .attr("y", 110)
+    .style("font-size", "1rem")
+    .style("font-weight", "bold")
+
+  // Color dots for Genre Legend
   svg.selectAll(".legend-dot")
     .data(allColors)
     .join("circle")
     .attr("class", "legend-dot")
-    .attr("cx", width - margin.right * .6)
+    .attr("cx", width - margin.right * .6 - 10)
     .attr("cy", (_, i) => 130 + i * 20)
     .attr("r", 6)
     .style("fill", d => d)
     .attr("stroke", "black")
     .attr("opacity", "0.6")
 
+  // Genre labels for Genre Legend
   svg.selectAll(".legend-genre")
     .data(allGenres)
     .join("text")
     .attr("class", "legend-genre")
-    .attr("x", width - margin.right / 2)
+    .attr("x", width - margin.right / 2 - 10)
     .attr("y", (_, i) => 130 + i * 20)
     .text(d => d)
     .style("font-size", "15px")
     .attr("alignment-baseline","middle")
 
+  // Grabbing the min, median, and max of budgets
+  const allBudgets = data.map(d => d["Budget (million $)"]);
+  const threeBudgets = [
+    d3.min(allBudgets), 
+    d3.median(allBudgets), 
+    d3.max(allBudgets)
+  ];
+
+  // Title for Budget Legend
+  svg.append("text")
+    .text("Budget:")
+    .attr("x", width - margin.right / 2 - 17)
+    .attr("y", 355)
+    .style("font-size", "1rem")
+    .style("font-weight", "bold")
+
+  // Circle Sizes for Budget Legend
+  svg.selectAll(".legend-size")
+    .data(threeBudgets)
+    .join("circle")
+    .attr("class", "legend-size")
+    .attr("cx", d => width - margin.right * .6 - sizeScale(d) / 2 - 5)
+    .attr("cy", (_, i) => 378 + i * 35)
+    .attr("r", d => sizeScale(d))
+    .style("fill", "white")
+    .attr("stroke", "black")
+    .attr("opacity", "0.6")
+
+  // Budget Dollars for Budget Legend
+  svg.selectAll(".legend-budget")
+    .data(threeBudgets)
+    .join("text")
+    .attr("class", "legend-budget")
+    .attr("x", width - margin.right * .45 - 5)
+    .attr("y", (_, i) => 380 + i * 35)
+    .text(d => d === 0 ? "< $1 mill" : `$${d} mill`)
+    .style("font-size", "15px")
+    .attr("alignment-baseline","middle")
 
 
   // FILM TITLE LABELS ON HOVERED DOTS -----------------------

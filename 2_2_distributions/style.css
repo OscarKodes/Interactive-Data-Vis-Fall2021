@@ -26,12 +26,13 @@ p {
 }
 
 #container {
-  margin: 2rem auto 4rem;
-  padding: 3rem auto;
+  margin: 0 auto 4rem;
+  padding: 0 auto;
 }
 
 .plot-title {
-  margin-top: 4rem;
+  margin-top: 3rem;
+  margin-bottom: 0;
   font-size: 1.75rem;
   font-weight: bolder;
 }
@@ -53,42 +54,3 @@ p {
   border-radius: 1rem;
   border-bottom-right-radius: 0;
 }
-
-#key {
-  border: grey solid 1rem;
-  border-radius: 1rem;
-  width: 25%;
-  margin: 2rem auto;
-  padding: 1rem;
-  line-height: 2;
-}
-
-.yellow {
-  color: yellow;
-  background-color: lightgrey;
-}
-
-.red {
-  color: red;
-}
-
-.green {
-  color: green;
-}
-
-.purple {
-  color: purple;
-}
-
-.black {
-  color: black;
-}
-
-.blue {
-  color: blue;
-}
-
-.pink {
-  color: pink;
-}
-
