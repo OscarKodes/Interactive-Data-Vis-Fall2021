@@ -63,14 +63,18 @@ d3.csv("Movie-Ratings.csv", d3.autoType).then(data => {
 
   svg.append("text")
     .attr("text-anchor", "end")
-    .attr("x", width)
+    .attr("x", width / 2 + margin * 2)
     .attr("y", height - 6)
+    .style("font-weight", "bold")
+    .style("font-size", "1.2rem")
     .text("Rotten Tomatoes Ratings %");
 
   svg.append("text")
     .attr("text-anchor", "end")
-    .attr("y", 6)
-    .attr("dy", ".75em")
+    .attr("x", -height / 2 + margin * 2)
+    .attr("y", 15)
+    .style("font-weight", "bold")
+    .style("font-size", "1.2rem")
     .attr("transform", "rotate(-90)")
     .text("Audience Ratings %");
 
