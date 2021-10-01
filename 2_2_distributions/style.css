@@ -26,19 +26,19 @@ p {
 }
 
 #container {
-  margin: 3rem auto;
+  margin: 2rem auto 4rem;
   padding: 3rem auto;
 }
 
 .plot-title {
   margin-top: 4rem;
-  font-size: 2rem;
+  font-size: 1.75rem;
   font-weight: bolder;
 }
 
 .plot-title span {
   font-weight: 300;
-  font-size: 1.75rem;
+  font-size: 1.5rem;
 }
 
 .tooltip {
