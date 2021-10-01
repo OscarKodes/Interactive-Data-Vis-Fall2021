@@ -1,7 +1,12 @@
 /* CONSTANTS AND GLOBALS */
-const height = window.innerHeight * 0.85,
-  width = height, // Intentionally square shaped scatterplot (100% vs 100%)
-  margin = 50;
+const height = window.innerHeight * 0.8,
+  width = window.innerWidth * 0.9, 
+  margin = {
+    top: 50,
+    left: 50,
+    right: 150,
+    bottom: 50
+  };
 
 /* LOAD DATA */
 d3.csv("Movie-Ratings.csv", d3.autoType).then(data => {
@@ -16,15 +21,19 @@ d3.csv("Movie-Ratings.csv", d3.autoType).then(data => {
 
   const xScale = d3.scaleLinear()
     .domain([0, d3.max(data.map(d => d["Rotten Tomatoes Ratings %"]))])
-    .range([margin, width - margin])
+    .range([margin.left, width - margin.right])
 
   const yScale = d3.scaleLinear()
     .domain([0, d3.max(data, d => d["Audience Ratings %"])])
-    .range([height - margin, margin])
+    .range([height - margin.top, margin.bottom])
+
+  // Placing genres and colors in arrays to be used in colorScale & Legend
+  const allGenres = ["Comedy", "Drama", "Adventure", "Thriller", "Horror", "Action", "Romance"];
+  const allColors = ["Yellow", "Red", "Green", "Purple", "Black", "Blue", "Pink"];
 
   const colorScale = d3.scaleOrdinal()
-    .domain(["Comedy", "Drama", "Adventure", "Thriller", "Horror", "Action", "Romance"])
-    .range(["Yellow", "Red", "Green", "Purple", "Black", "Blue", "Pink"])
+    .domain(allGenres)
+    .range(allColors)
 
   const sizeScale = d3.scaleSqrt()
     .domain([1, d3.max(data, d => d["Budget (million $)"])])
@@ -42,17 +51,17 @@ d3.csv("Movie-Ratings.csv", d3.autoType).then(data => {
 
   // AXIS TICKS  ----------------------------------------------
   svg.append("g")
-    .attr("transform", `translate(0,${height - margin})`)
+    .attr("transform", `translate(0,${height - margin.top})`)
     .call(d3.axisBottom(xScale));
   
   svg.append("g")
-    .attr("transform", `translate(${margin},0)`)
+    .attr("transform", `translate(${margin.bottom},0)`)
     .call(d3.axisLeft(yScale));
 
   // AXIS LABELS ----------------------------------------------
   svg.append("text")
     .attr("text-anchor", "end")
-    .attr("x", width / 2 + margin * 2)
+    .attr("x", width / 2 + margin.left * 2)
     .attr("y", height - 6)
     .style("font-weight", "bold")
     .style("font-size", "1.2rem")
@@ -60,7 +69,7 @@ d3.csv("Movie-Ratings.csv", d3.autoType).then(data => {
 
   svg.append("text")
     .attr("text-anchor", "end")
-    .attr("x", -height / 2 + margin * 2)
+    .attr("x", -height / 2 + margin.left * 2)
     .attr("y", 15)
     .style("font-weight", "bold")
     .style("font-size", "1.2rem")
@@ -120,7 +129,6 @@ d3.csv("Movie-Ratings.csv", d3.autoType).then(data => {
   };
 
   // DOTS FOR SCATTERPLOT ----------------------------------
-
   const dot = svg
     .selectAll(".dot") // Line below sorts films by largest budget to smallest, so small dots appear on top
     .data(data.sort((a, b) => b["Budget (million $)"] - a["Budget (million $)"])) 
@@ -133,6 +141,29 @@ d3.csv("Movie-Ratings.csv", d3.autoType).then(data => {
     .attr("opacity", "0.4")
     .on("mouseover", tipMouseover)
     .on("mouseout", tipMouseout);
+
+  // LEGEND ------------------------------------------------
+  svg.selectAll(".legend-dot")
+    .data(allColors)
+    .join("circle")
+    .attr("class", "legend-dot")
+    .attr("cx", width - margin.right * .6)
+    .attr("cy", (_, i) => 130 + i * 20)
+    .attr("r", 6)
+    .style("fill", d => d)
+    .attr("stroke", "black")
+    .attr("opacity", "0.6")
+
+  svg.selectAll(".legend-genre")
+    .data(allGenres)
+    .join("text")
+    .attr("class", "legend-genre")
+    .attr("x", width - margin.right / 2)
+    .attr("y", (_, i) => 130 + i * 20)
+    .text(d => d)
+    .style("font-size", "15px")
+    .attr("alignment-baseline","middle")
+
 
 
   // FILM TITLE LABELS ON HOVERED DOTS -----------------------
