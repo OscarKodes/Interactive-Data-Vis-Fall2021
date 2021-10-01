@@ -1,66 +1,55 @@
 /* CONSTANTS AND GLOBALS */
 const height = window.innerHeight * 0.85,
-  width = height,
+  width = height, // Intentionally square shaped scatterplot (100% vs 100%)
   margin = 50;
 
 /* LOAD DATA */
 d3.csv("Movie-Ratings.csv", d3.autoType).then(data => {
-  console.log(data)
 
-  // x = Rotten Tomatoes Ratings %
-  // y = Audience Ratings %
-  // size = Budget (million $)
-  // color = Genre
+  // Plan for scatterplot:
+    // x = Rotten Tomatoes Ratings %
+    // y = Audience Ratings %
+    // size = Budget (million $)
+    // color = Genre
 
-  // First step: Sort movies by largest budgest to smallest budget, 
-  // so bigger movie dots are created first.
-  // So smaller movie dots aren't covered by bigger movie dots
-  data = data.sort((a, b) => b["Budget (million $)"] - a["Budget (million $)"]);
+  /* SCALES ##################################################### */
 
-
-  /* SCALES */
-  // xscale  - linear,count
   const xScale = d3.scaleLinear()
     .domain([0, d3.max(data.map(d => d["Rotten Tomatoes Ratings %"]))])
     .range([margin, width - margin])
 
-  // yscale - linear,count
   const yScale = d3.scaleLinear()
     .domain([0, d3.max(data, d => d["Audience Ratings %"])])
     .range([height - margin, margin])
 
-  // color scale
   const colorScale = d3.scaleOrdinal()
     .domain(["Comedy", "Drama", "Adventure", "Thriller", "Horror", "Action", "Romance"])
     .range(["Yellow", "Red", "Green", "Purple", "Black", "Blue", "Pink"])
 
-  // size scale
   const sizeScale = d3.scaleSqrt()
     .domain([1, d3.max(data, d => d["Budget (million $)"])])
     .range([2, 16]);
 
-  /* HTML ELEMENTS */
-  // svg
+
+  /* HTML ELEMENTS ############################################## */
+
+  // SVG CANVAS -----------------------------------------------
   const svg = d3.select("#container")
     .append("svg")
     .attr("width", width)
     .attr("height", height)
     .style("background-color", "lavender")
 
-
-  // Axis Scales ---------------------
-  const xAxis = d3.axisBottom(xScale)
-
+  // AXIS TICKS  ----------------------------------------------
   svg.append("g")
     .attr("transform", `translate(0,${height - margin})`)
-    .call(xAxis);
+    .call(d3.axisBottom(xScale));
   
-  const yAxis = d3.axisLeft(yScale)
-
   svg.append("g")
     .attr("transform", `translate(${margin},0)`)
-    .call(yAxis);
+    .call(d3.axisLeft(yScale));
 
+  // AXIS LABELS ----------------------------------------------
   svg.append("text")
     .attr("text-anchor", "end")
     .attr("x", width / 2 + margin * 2)
@@ -78,66 +67,66 @@ d3.csv("Movie-Ratings.csv", d3.autoType).then(data => {
     .attr("transform", "rotate(-90)")
     .text("Audience Ratings %");
 
-
-  // Add the tooltip container to the vis container
-  // it's invisible and its position/contents are defined during mouseover
+  // INVISIBLE TOOLTIP DIV -----------------------------------
   const tooltip = d3.select("#container")
                     .append("div")
                     .attr("class", "tooltip")
                     .style("opacity", 0);
 
-  // tooltip mouseover event handler
+  // TOOLTIP MOUSE OVER EVENT HANDLER ------------------------
   const tipMouseover = function(event, d) {
 
-    let html  = `<b>Title:</b> ${d.Film}<br/>
-                  <b>Genre:</b> ${d.Genre}</span><br/>
-                  <b>Rotten Tomatoes:</b> ${d["Rotten Tomatoes Ratings %"]}%<br/>
-                  <b>Audience Ratings:</b> ${d["Audience Ratings %"]}%<br/> 
-                  <b>Budget:</b> $${d["Budget (million $)"]} million (USD)<br>
-                  <b>Year:</b> ${d["Year of release"]}`;
+    // Dynamic html to put inside tooltip div catered to specific film
+    const tooltipHTML = `<b>Title:</b> ${d.Film}<br/>
+                          <b>Genre:</b> ${d.Genre}</span><br/>
+                          <b>Rotten Tomatoes:</b> ${d["Rotten Tomatoes Ratings %"]}%<br/>
+                          <b>Audience Ratings:</b> ${d["Audience Ratings %"]}%<br/> 
+                          <b>Budget:</b> $${d["Budget (million $)"]} million (USD)<br>
+                          <b>Year:</b> ${d["Year of release"]}`;
 
     let color = colorScale(d.Genre);
     let size = sizeScale(d["Budget (million $)"]);
 
-    tooltip.html(html)
-      .style("left", ((d.Film.length >= 20 ? 
+    // Position the invisible tooltip div above and left of hovering cursor
+    tooltip.html(tooltipHTML)
+      .style("left", ((d.Film.length >= 20 ? // Dynamic positioning if long film title
                         event.pageX - 160 - ((d.Film.length - 19) * 5) : 
                         event.pageX - 160) + "px"))  
       .style("top", (event.pageY - 120 - 0.5 * size + "px"))
-      .style("border", `${color} solid 0.2rem`)
+      .style("border", `${color} solid 0.2rem`) // Same border color as genre
       .style("outline", "1px solid black")
       .transition()
         .duration(100) 
-        .style("opacity", .85)
+        .style("opacity", .85) // Make invisible div visable
 
-    // highlight the circles
+    // Highlight the hovered circle
     d3.select(this)
       .transition()
       .duration(100)
       .style("opacity", 1);
   };
 
-  // tooltip mouseout event handler
-  let tipMouseout = function(d) {
+  // TOOLTIP MOUSE OUT EVENT HANDLER ----------------------
+  const tipMouseout = function(d) {
       tooltip.transition()
-          .duration(200) // ms
-          .style("opacity", 0); // don't care about position!
+          .duration(200) 
+          .style("opacity", 0); // Make tooltip div invisible once again
 
-      // Unhighlight circles
+      // Remove highlight from hovered circle
       d3.select(this)
       .transition()
       .duration(200)
       .style("opacity", 0.5);
   };
 
-  // Circles ----------------
+  // DOTS FOR SCATTERPLOT ----------------------------------
+
   const dot = svg
-    .selectAll(".dot")
-    .data(data, d => d.Film) // second argument is the unique key for that row
+    .selectAll(".dot") // Line below sorts films by largest budget to smallest, so small dots appear on top
+    .data(data.sort((a, b) => b["Budget (million $)"] - a["Budget (million $)"])) 
     .join("circle")
     .attr("class", "dot")
-    .attr("transform", d => `translate(${xScale(d["Rotten Tomatoes Ratings %"])},
-                                        ${yScale(d["Audience Ratings %"])})`)
+    .attr("transform", d => `translate(${xScale(d["Rotten Tomatoes Ratings %"])}, ${yScale(d["Audience Ratings %"])})`)
     .attr("r", d => sizeScale(d["Budget (million $)"]))
     .attr("fill", d => colorScale(d.Genre))
     .attr("stroke", "black")
@@ -145,10 +134,10 @@ d3.csv("Movie-Ratings.csv", d3.autoType).then(data => {
     .on("mouseover", tipMouseover)
     .on("mouseout", tipMouseout);
 
-  
-  // Labels for Circles ---------------
 
-  // Not used. Replaced by tooltips.
+  // FILM TITLE LABELS ON HOVERED DOTS -----------------------
+
+  // NOTE: Not used. Decided to replace with tooltips.
 
   // const text = svg
   //   .selectAll("text")
