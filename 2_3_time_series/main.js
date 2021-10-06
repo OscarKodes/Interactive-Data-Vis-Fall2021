@@ -1,8 +1,12 @@
  /* CONSTANTS AND GLOBALS */
-// const width = ,
-//   height = ,
-//   margin = ;
-
+const width = window.innerWidth * 0.8,
+  height = window.innerHeight * 0.8,
+  margin = {
+    top: 25,
+    bottom: 50,
+    left: 50,
+    right: 25
+  };
 
 // Google Trends:
 // Numbers represent search interest relative to the highest point 
@@ -23,97 +27,68 @@ d3.csv('appSearches.csv', d => {
 
   // SCALES
 
+  const xScale = d3.scaleTime()
+    .domain(d3.extent(data, d => d.week))
+    .range([margin.left, width - margin.right])
+
+  const yScale = d3.scaleLinear()
+    .domain(d3.extent(data, d => d.searches))
+    .range([height - margin.bottom, margin.top])
+
   // CREATE SVG ELEMENT
+  const svg = d3.select("#container")
+    .append("svg")
+    .attr("width", width)
+    .attr("height", height)
+    .style("background-color", "lavender")
 
-  // BUILD AND CALL AXES
+   // BUILD AND CALL AXES
+ const xAxis = d3.axisBottom(xScale)
 
-  // LINE GENERATOR FUNCTION
+ svg.append("g")
+   .attr("transform", `translate(${0}, ${height - margin.top})`)
+   .call(xAxis)
 
-  // DRAW LINE
+ const yAxis = d3.axisLeft(yScale)
+
+ svg.append("g")
+   .attr("transform", `translate(${margin.left}, ${margin.top})`)
+   .call(yAxis)
+
+
+  // DRAW LINE FUNCTION
+  const drawLine = d3.line()
+    .x(d => xScale(d.week))
+    .y(d => yScale(d.searches))
+
+  // DRAW AREA
+  const drawArea = d3.area()
+    .x(d => xScale(d.week))
+    .y0(height)
+    .y1(d => yScale(d.searches))
+
+
+  // Isolate tinder to make just one line
+  const tinderData = data.filter(d => d.app === "Tinder")
+  const bumbleData = data.filter(d => d.app === "Bumble")
+
+  // DRAW AREA
+  svg.selectAll(".tinder-area")
+    .data([tinderData])
+    .join("path")
+    .attr("class", "tinder-area")
+    .attr("fill", "steelblue")
+    .attr("stroke", "black")
+    .attr("d", d => drawArea(d))
+
+  // DRAW AREA
+  svg.selectAll(".bumble-area")
+    .data([bumbleData])
+    .join("path")
+    .attr("class", "bumble-area")
+    .attr("fill", "gold")
+    .attr("stroke", "black")
+    .attr("d", d => drawArea(d))
 
 });
 
-
-//  /* CONSTANTS AND GLOBALS */
-//  const width = window.innerWidth * 0.7,
-//  height = window.innerHeight * 0.7,
-//  margin = { top: 20, bottom: 50, left: 60, right: 60 }
-
-// /*
-// this extrapolated function allows us to replace the "G" with "B" min the case of billions.
-// we cannot do this in the .tickFormat() because we need to pass a function as an argument,
-// and replace needs to act on the text (result of the function).
-// */
-// const formatBillions = (num) => d3.format(".2s")(num).replace(/G/, 'B')
-// const formatDate = d3.timeFormat("%Y")
-
-// /* LOAD DATA */
-// d3.csv('appSearches.csv', d => {
-//  // use custom initializer to reformat the data the way we want it
-//  // ref: https://github.com/d3/d3-fetch#dsv
-//   return {
-//     week: new Date(d.Week),
-//     app: d.app,
-//     searches: +d.searches,
-//   }
-// }).then(data => {
-//  console.log('data :>> ', data);
-
-//  // + SCALES
-//  const xScale = d3.scaleTime()
-//    .domain(d3.extent(data, d => d.week))
-//    .range([margin.right, width - margin.left])
-
-//  const yScale = d3.scaleLinear()
-//    .domain(d3.extent(data, d => d.searches))
-//    .range([height - margin.bottom, margin.top])
-
-//  // CREATE SVG ELEMENT
-//  const svg = d3.select("#container")
-//    .append("svg")
-//    .attr("width", width)
-//    .attr("height", height)
-
-//  // BUILD AND CALL AXES
-//  const xAxis = d3.axisBottom(xScale)
-//    .ticks(6) // limit the number of tick marks showing -- note: this is approximate
-
-//  const xAxisGroup = svg.append("g")
-//    .attr("class", "xAxis")
-//    .attr("transform", `translate(${0}, ${height - margin.bottom})`)
-//    .call(xAxis)
-
-//  xAxisGroup.append("text")
-//    .attr("class", 'xLabel')
-//    .attr("transform", `translate(${width / 2}, ${35})`)
-//    .text("Year")
-
-//  const yAxis = d3.axisLeft(yScale)
-//    .tickFormat(formatBillions)
-
-//  const yAxisGroup = svg.append("g")
-//    .attr("class", "yAxis")
-//    .attr("transform", `translate(${margin.right}, ${0})`)
-//    .call(yAxis)
-
-//  yAxisGroup.append("text")
-//    .attr("class", 'yLabel')
-//    .attr("transform", `translate(${-45}, ${height / 2})`)
-//    .attr("writing-mode", 'vertical-rl')
-//    .text("Population")
-
-//  // LINE GENERATOR FUNCTION
-//  const lineGen = d3.line()
-//    .x(d => xScale(d.week))
-//    .y(d => yScale(d.searches))
-
-//  // DRAW LINE
-//  svg.selectAll(".line")
-//    .data([data]) // data needs to take an []
-//    .join("path")
-//    .attr("class", 'line')
-//    .attr("fill", "none")
-//    .attr("stroke", "black")
-//    .attr("d", d => lineGen(d))
-
-// });
