@@ -136,15 +136,24 @@ d3.csv("Movie-Ratings.csv", d3.autoType).then(data => {
   const dot = svg
     .selectAll(".dot") // Line below sorts films by largest budget to smallest, so small dots appear on top
     .data(data.sort((a, b) => b["Budget (million $)"] - a["Budget (million $)"])) 
-    .join("circle")
-    .attr("class", "dot")
-    .attr("transform", d => `translate(${xScale(d["Rotten Tomatoes Ratings %"])}, ${yScale(d["Audience Ratings %"])})`)
-    .attr("r", d => sizeScale(d["Budget (million $)"]))
-    .attr("fill", d => colorScale(d.Genre))
-    .attr("stroke", "black")
-    .attr("opacity", "0.4")
-    .on("mouseover", tipMouseover)
-    .on("mouseout", tipMouseout);
+    .join(
+      enter => enter
+        .append("circle")
+          .attr("class", "dot")
+          .attr("transform", `translate(${margin.left}, ${height - margin.top})`)
+          .attr("r", d => sizeScale(d["Budget (million $)"]))
+          .attr("fill", d => colorScale(d.Genre))
+          .attr("stroke", "black")
+          .attr("opacity", "0.4")
+          .on("mouseover", tipMouseover)
+          .on("mouseout", tipMouseout)
+        .call(enter => enter
+          .transition()
+            .duration(1500)
+            .delay((d, i) => yScale(d["Audience Ratings %"]) + i * 2)
+            .attr("transform", d => `translate(${xScale(d["Rotten Tomatoes Ratings %"])}, ${yScale(d["Audience Ratings %"])})`)
+        )
+    );
 
   // LEGENDS ------------------------------------------------
 
