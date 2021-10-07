@@ -42,24 +42,49 @@ d3.csv('./swiftSales.csv', d3.autoType)
     // bars
     svg.selectAll(".bar")
       .data(data)
-      .join("rect")
-      .attr("class", "bar")
-      .attr("width", d => xScale(d.usSales))
-      .attr("height", yScale.bandwidth())
-      .attr("x", 0)
-      .attr("y", d => yScale(d.album))
-      .attr("fill", schemeSet3Colors)
-      .attr("transform", `translate(${margin}, 0)`)
-      .attr("stroke", "grey");
+      .join(
+        enter => enter
+          .append("rect")
+          .attr("class", "dot")
+          .attr("height", yScale.bandwidth())
+          .attr("width", 0)
+          .attr("x", 0)
+          .attr("y", d => yScale(d.album))
+          .attr("fill", "white")
+          .attr("transform", `translate(${margin}, 0)`)
+          .attr("stroke", "grey")
+          .call(enter => enter
+            .transition()
+              .duration(800)
+              .delay((_, i) => i * 200)
+              .attr("width", d => xScale(d.usSales))
+            .transition()
+              .duration(800)
+              .delay((_, i) => (data.length - 1 - i) * 250)
+              .attr("fill", schemeSet3Colors)
+          )
+      );
 
     // bar numbers
     svg.selectAll(".bar-nums")
       .data(data)
-      .join("text")
-      .attr("class", "bar-nums")
-      .attr("x", d => xScale(d.usSales) + margin + 10)
-      .attr("y", d => yScale(d.album) + yScale.bandwidth() / 2)
-      .text(d => `${d.usSales} mill`)
+      .join(
+        enter => enter
+          .append("text")
+          .attr("class", "bar-nums")
+          .attr("x", 0)
+          .attr("y", d => yScale(d.album) + yScale.bandwidth() / 2)
+          .attr("opacity", 0)
+          .text(d => `${d.usSales} mill`)
+          .call(enter => enter
+            .transition()
+              .duration(1600)
+              .delay((_, i) => i * 200)
+              .attr("opacity", 1)
+              .attr("x", d => xScale(d.usSales) + margin + 10)
+          )
+      )
+      
 
     // xAxis ticks
     svg.append("g")
