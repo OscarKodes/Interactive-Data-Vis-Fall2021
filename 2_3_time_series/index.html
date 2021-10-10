@@ -2,7 +2,7 @@
 
 <head>
   <meta charset="utf-8">
-  <title>Interactive Data Visualization Tutorial</title>
+  <title>Area Chart</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro">
   <link rel="stylesheet" href="./style.css">
 </head>
@@ -10,9 +10,21 @@
 <body>
 
 
-  <h3>Section 2 | Time Series</h3>
+  <h3>Weekly Google Search Interest of Keywords:</h3>
+  <h3>"Tinder", "Bumble", and "Okcupid"</h3>
+
   <div id="container"></div>
 
+
+  <p class="description">
+    <strong>Data sourced from Google Trends</strong> <br>
+
+    Numbers represent search interest relative to the highest point on the chart. <br>
+
+    A value of 100 is the peak popularity for the term. <br>
+    A value of 50 means that the term is half as popular. <br>
+    A score of 0 means there was not enough data for this term.
+  </p>
 
   <!-- D3.js CDN -->
   <script src="https://d3js.org/d3.v7.min.js"></script>
