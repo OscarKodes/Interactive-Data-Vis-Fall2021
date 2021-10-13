@@ -9,16 +9,20 @@ const width = window.innerWidth * 0.8,
  * */
 Promise.all([
   d3.json("usState.json"),
-  d3.csv("stateCapitals.csv", d3.autoType),
-]).then(([usMapData, capitalsData]) => {
+  d3.csv("airport-clean-data.csv", d3.autoType),
+]).then(([usMapData, airportData]) => {
   
-  console.log([usMapData, capitalsData])
+  console.log([usMapData, airportData])
 
   // CREATE SCALES / PROJECTIONS
   const projection = d3.geoAlbersUsa()
     .fitSize([width - margin.left - margin.right,
               height - margin.top - margin.bottom],
               usMapData);
+
+  const sizeScale = d3.scaleSqrt()
+      .domain([1, 3])
+      .range([2, 8])
 
   // CREATE SVG
   const svg = d3.select("#container")
@@ -38,33 +42,47 @@ Promise.all([
       .attr("fill", "transparent")
       .attr("d", pathGen)
   
-  // PLACE POINT FOR GRAD CENTER
-  const gradCenterCoordinates =  { latitude: 40.7423, longitude: -73.9833 };
-  svg.selectAll(".gradcenter-point")
-    .data([gradCenterCoordinates])
-    .join("circle")
-    .attr("class", "gradcenter-point")
-    .attr("r", 10)
-    .attr("fill", "gold")
-    .attr("transform", d => {
+  // // PLACE POINT FOR GRAD CENTER
+  // const gradCenterCoordinates =  { latitude: 40.7423, longitude: -73.9833 };
+  // svg.selectAll(".gradcenter-point")
+  //   .data([gradCenterCoordinates])
+  //   .join("circle")
+  //   .attr("class", "gradcenter-point")
+  //   .attr("r", 10)
+  //   .attr("fill", "gold")
+  //   .attr("transform", d => {
 
-      const [x, y] = projection([d.longitude, d.latitude])
+  //     const [x, y] = projection([d.longitude, d.latitude])
 
-      return `translate(${x}, ${y})`
-    });
+  //     return `translate(${x}, ${y})`
+  //   });
 
-  // DRAW STATE CAPITAL POINTS
+  // DRAW AIRPORT POINTS
   svg.selectAll(".capital-points")
-    .data(capitalsData)
+    .data(airportData)
     .join("circle")
     .attr("class", "capital-points")
-    .attr("r", 5)
-    .attr("fill", "lightsalmon")
+    .attr("r", d => sizeScale(d.Size))
+    .attr("fill", "skyblue")
+    .attr("stroke", "black")
+    .attr("opacity", 0.4)
     .attr("transform", d => {
 
-      const [x, y] = projection([d.longitude, d.latitude])
+      const [x, y] = projection([d.long, d.lat])
 
       return `translate(${x}, ${y})`
     });
 
 });
+
+
+// TO ADD:
+/*
+
+- Change color shade b/w green and gray based on recentness of updated data
+- Hover over tooltips 
+- Hover over opacity 1
+- Add legend
+- Add Title
+
+*/
