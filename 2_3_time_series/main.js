@@ -1,4 +1,4 @@
- /* CONSTANTS AND GLOBALS */
+// CONSTANTS ####################################
 const width = window.innerWidth * 0.8,
   height = window.innerHeight * 0.8,
   margin = {
@@ -8,7 +8,7 @@ const width = window.innerWidth * 0.8,
     right: 150
   };
 
-/* LOAD DATA */
+// LOAD DATA ####################################
 d3.csv('appSearches.csv', d => {
   return {
     week: new Date(d.Week),
@@ -17,7 +17,13 @@ d3.csv('appSearches.csv', d => {
   }
 }).then(data => {
 
-  // SCALES
+  // MANIPULATING DATA ==========================
+
+  // Only Tinder, Bumble, and OkCupid 
+  data = data.filter(d => ["Tinder", "Bumble", "okcupid"].includes(d.app));
+
+
+  // SCALES ====================================
   const xScale = d3.scaleTime()
     .domain(d3.extent(data, d => d.week))
     .range([margin.left, width - margin.right])
@@ -26,17 +32,19 @@ d3.csv('appSearches.csv', d => {
     .domain(d3.extent(data, d => d.searches))
     .range([height - margin.bottom, margin.top])
 
-  const colorArr = ["#ff6a33", "yellow", "Purple"];
-  const colorScale = d3.scaleOrdinal()
-  .range(colorArr);
+  const colorArr = ["#ff6a33", "yellow", "purple"];
+  const colorScale = d3.scaleOrdinal().range(colorArr);
 
-  // CREATE SVG ELEMENT
+
+  // HTML ELEMENTS #############################
+
+  // Create SVG 
   const svg = d3.select("#container")
     .append("svg")
     .attr("width", width)
     .attr("height", height)
 
-   // AXIS TICKS
+   // Axis Ticks
   const xAxis = d3.axisBottom(xScale)
 
   svg.append("g")
@@ -49,7 +57,7 @@ d3.csv('appSearches.csv', d => {
     .attr("transform", `translate(${margin.left - 1}, ${0})`)
     .call(yAxis)
 
-  // AXIS LABELS ----------------------------------------------
+  // Axis Labels 
   svg.append("text")
     .attr("text-anchor", "end")
     .attr("x", width / 2)
@@ -67,25 +75,19 @@ d3.csv('appSearches.csv', d => {
     .attr("transform", "rotate(-90)")
     .text("Search Interest Relative to Highest Point");
 
-  
-  // DRAW AREA
-  const drawArea = d3.area()
+  // Area Generator 
+  const areaGen = d3.area()
     .x(d => xScale(d.week))
     .y0(height - margin.bottom)
     .y1(d => yScale(d.searches))
 
+  // Group data by apps
+  appData = d3.groups(data, d => d.app)
+  .map(d => {
+    return {app:d[0], searches:d[1]};
+  });
 
-  // Filter data for only Tinder and Bumble
-  data = data.filter(d => ["Tinder", "Bumble", "okcupid"].includes(d.app))
-
-  // Group by apps
-  const appData = d3.groups(data, d => d.app)
-                      .map(d => {
-                        return {app:d[0], searches:d[1]};
-                      });
-  console.log(appData);
-
-  // DRAW AREA
+  // Draw Graph ----------------------
   svg.selectAll(".area")
     .data(appData)
     .join(
@@ -99,12 +101,12 @@ d3.csv('appSearches.csv', d => {
         .transition()
           .duration(2000)
           .delay((_, i) => i * 500)
-          .attr("d", d => drawArea(d.searches))
+          .attr("d", d => areaGen(d.searches))
           .attr("opacity", 0.85))
     )
     
 
-  // LEGEND ------------------------------------------------
+  // Legend -------------------------
 
   // Title for search Legend
   svg.append("text")
@@ -126,7 +128,7 @@ d3.csv('appSearches.csv', d => {
     .style("fill", d => d)
     .attr("stroke", "black")
 
-  // search labels for search Legend
+  // Labels for search legend
   svg.selectAll(".legend-search")
     .data(["Tinder", "Bumble", "Okcupid"])
     .join("text")

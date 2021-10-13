@@ -7,13 +7,12 @@ body {
 }
 
 h1 {
-  font-size: 3em;
-  margin: 0.25em 0;
+  font-size: 1.85rem;
 }
 
-h3 {
-  font-size: 2em;
-  margin: 0.25em 0;
+h2 {
+  font-size: 1.7rem;
+  font-weight: lighter;
 }
 
 p {
@@ -27,5 +26,14 @@ p {
   border: grey solid 1rem;
   border-radius: 1rem;
   padding: 2rem;
+  text-align: center;
+}
+
+.description ul {
+  width: 80%;
+  margin: 0 auto;
+}
+
+.description li {
   text-align: left;
 }

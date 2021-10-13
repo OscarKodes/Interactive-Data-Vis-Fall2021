@@ -10,21 +10,25 @@
 <body>
 
 
-  <h3>Weekly Google Search Interest of Keywords:</h3>
-  <h3>"Tinder", "Bumble", and "Okcupid"</h3>
+  <div class="header">
+    <h1>Weekly Google Search Interest of Keywords:</h1>
+    <h2>"Tinder", "Bumble", and "Okcupid"</h2>
+  </div>
+
 
   <div id="container"></div>
 
 
-  <p class="description">
-    <strong>Data sourced from Google Trends</strong> <br>
+  <div class="description">
+    <strong>Data sourced from Google Trends</strong>
+    <p>Numbers represent search interest relative to the highest point on the chart.</p>
+    <ul>
+      <li>A value of 100 is the peak popularity for the term.</li>
+      <li>A value of 50 means that the term is half as popular.</li>
+      <li>A score of 0 means there was not enough data for this term.</li>
+    </ul>
+  </div>
 
-    Numbers represent search interest relative to the highest point on the chart. <br>
-
-    A value of 100 is the peak popularity for the term. <br>
-    A value of 50 means that the term is half as popular. <br>
-    A score of 0 means there was not enough data for this term.
-  </p>
 
   <!-- D3.js CDN -->
   <script src="https://d3js.org/d3.v7.min.js"></script>
