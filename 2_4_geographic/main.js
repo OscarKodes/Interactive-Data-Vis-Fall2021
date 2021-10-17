@@ -14,6 +14,12 @@ Promise.all([
   
   console.log([usMapData, airportData])
 
+  // FIlTER OUT SMALL AIRPORTS
+  // SORT MEDIUM AIRPORTS FIRST
+  airportData = airportData
+                .filter(d => d.Size !== 1)
+                .sort((a, b) => a.Size - a.Size);
+
   // CREATE SCALES / PROJECTIONS
   const projection = d3.geoAlbersUsa()
     .fitSize([width - margin.left - margin.right,
@@ -21,8 +27,8 @@ Promise.all([
               usMapData);
 
   const sizeScale = d3.scaleSqrt()
-      .domain([1, 3])
-      .range([2, 8])
+      .domain([2, 3])
+      .range([4, 8])
 
   // CREATE SVG
   const svg = d3.select("#container")
@@ -42,20 +48,50 @@ Promise.all([
       .attr("fill", "transparent")
       .attr("d", pathGen)
   
-  // // PLACE POINT FOR GRAD CENTER
-  // const gradCenterCoordinates =  { latitude: 40.7423, longitude: -73.9833 };
-  // svg.selectAll(".gradcenter-point")
-  //   .data([gradCenterCoordinates])
-  //   .join("circle")
-  //   .attr("class", "gradcenter-point")
-  //   .attr("r", 10)
-  //   .attr("fill", "gold")
-  //   .attr("transform", d => {
+  
+  // INVISIBLE TOOLTIP DIV -----------------------------------
+  const tooltip = d3.select("#container")
+                    .append("div")
+                    .attr("class", "tooltip")
+                    .style("opacity", 0);
 
-  //     const [x, y] = projection([d.longitude, d.latitude])
+  // TOOLTIP MOUSE OVER EVENT HANDLER ------------------------
+  const tipMouseover = function(event, d) {
 
-  //     return `translate(${x}, ${y})`
-  //   });
+    // Dynamic html to put inside tooltip div catered to specific film
+    const tooltipHTML = `<b>Name:</b> ${d.Name}<br/>`;
+
+    let size = sizeScale(d.Size);
+    let length = d.Name.length;
+
+    // Position the invisible tooltip div above and left of hovering cursor
+    tooltip.html(tooltipHTML)
+      .style("left", d => event.pageX - 40 - (length * 5)  + "px")  
+      .style("top", event.pageY - 40 + "px")
+      .style("outline", "1px solid black")
+      .transition()
+        .duration(100) 
+        .style("opacity", .85) // Make invisible div visable
+
+    // Highlight the hovered circle
+    d3.select(this)
+      .transition()
+      .duration(100)
+      .style("opacity", 1);
+  };
+
+  // TOOLTIP MOUSE OUT EVENT HANDLER ----------------------
+  const tipMouseout = function(d) {
+      tooltip.transition()
+          .duration(200) 
+          .style("opacity", 0); // Make tooltip div invisible once again
+
+      // Remove highlight from hovered circle
+      d3.select(this)
+      .transition()
+      .duration(200)
+      .style("opacity", 0.5);
+  };
 
   // DRAW AIRPORT POINTS
   svg.selectAll(".capital-points")
@@ -63,6 +99,8 @@ Promise.all([
     .join("circle")
     .attr("class", "capital-points")
     .attr("r", d => sizeScale(d.Size))
+    .on("mouseover", tipMouseover)
+    .on("mouseout", tipMouseout)
     .attr("fill", "skyblue")
     .attr("stroke", "black")
     .attr("opacity", 0.4)
