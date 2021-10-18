@@ -12,24 +12,26 @@ Promise.all([
   d3.csv("airport-clean-data.csv", d3.autoType),
 ]).then(([usMapData, airportData]) => {
   
-  console.log([usMapData, airportData])
-
-  // FIlTER OUT SMALL AIRPORTS
-  // SORT LARGE AIRPORTS FIRST
+  // Filter out small airports
+  // Sort large airports to load first
   airportData = airportData
                 .filter(d => d.Size !== 1)
                 .sort((a, b) => b.Size-a.Size);
 
-  // CREATE SCALES / PROJECTIONS
+  // CREATE SCALES / PROJECTIONS==========================
+
+  // Projection for map
   const projection = d3.geoAlbersUsa()
     .fitSize([width - margin.left - margin.right,
               height - margin.top - margin.bottom],
               usMapData);
 
+  // Sizes for airport dots
   const sizeScale = d3.scaleSqrt()
       .domain([2, 3])
       .range([5, 10])
-
+  
+  // Color scale and constants
   const dateArr = airportData.map(d => Date.parse(d.last_update));
   const dateDomain = [
     d3.min(dateArr),
@@ -42,16 +44,18 @@ Promise.all([
       .domain(dateDomain)
       .range(colorsArr);
 
-  // CREATE SVG
+  // HTML ELEMENTS======================================
+
+  // create svg
   const svg = d3.select("#container")
     .append("svg")
     .attr("width", width)
     .attr("height", height);
 
-  // PATH GENERATOR FOR US MAP
+  // path generator for map
   const pathGen = d3.geoPath(projection);
 
-  // DRAW EMPTY US MAP
+  // draw the us map using the pathgen
   const states = svg.selectAll(".state-path")
       .data(usMapData.features)
       .join("path")
@@ -104,13 +108,13 @@ Promise.all([
       .style("opacity", 0.5);
   };
 
-  // DRAW AIRPORT POINTS
-  svg.selectAll(".capital-points")
+  // DRAW AIRPORT POINTS/CIRCLES
+  svg.selectAll(".airport-points")
     .data(airportData)
     .join(
       enter => enter
         .append("circle")
-          .attr("class", "capital-points")
+          .attr("class", "airport-points")
           .attr("r", 0)
           .on("mouseover", tipMouseover)
           .on("mouseout", tipMouseout)
