@@ -15,10 +15,10 @@ Promise.all([
   console.log([usMapData, airportData])
 
   // FIlTER OUT SMALL AIRPORTS
-  // SORT MEDIUM AIRPORTS FIRST
+  // SORT LARGE AIRPORTS FIRST
   airportData = airportData
                 .filter(d => d.Size !== 1)
-                .sort((a, b) => a.Size - a.Size);
+                .sort((a, b) => b.Size-a.Size);
 
   // CREATE SCALES / PROJECTIONS
   const projection = d3.geoAlbersUsa()
@@ -28,7 +28,19 @@ Promise.all([
 
   const sizeScale = d3.scaleSqrt()
       .domain([2, 3])
-      .range([4, 8])
+      .range([5, 10])
+
+  const dateArr = airportData.map(d => Date.parse(d.last_update));
+  const dateDomain = [
+    d3.min(dateArr),
+    d3.median(dateArr),
+    d3.max(dateArr)
+  ];
+  const colorsArr = ["#999999", "#66cc66", "#33ff33"];
+
+  const colorScale = d3.scaleLinear()
+      .domain(dateDomain)
+      .range(colorsArr);
 
   // CREATE SVG
   const svg = d3.select("#container")
@@ -61,7 +73,6 @@ Promise.all([
     // Dynamic html to put inside tooltip div catered to specific film
     const tooltipHTML = `<b>Name:</b> ${d.Name}<br/>`;
 
-    let size = sizeScale(d.Size);
     let length = d.Name.length;
 
     // Position the invisible tooltip div above and left of hovering cursor
@@ -96,31 +107,90 @@ Promise.all([
   // DRAW AIRPORT POINTS
   svg.selectAll(".capital-points")
     .data(airportData)
+    .join(
+      enter => enter
+        .append("circle")
+          .attr("class", "capital-points")
+          .attr("r", 0)
+          .on("mouseover", tipMouseover)
+          .on("mouseout", tipMouseout)
+          .attr("fill", d => colorScale(Date.parse(d.last_update)))
+          .attr("stroke", "black")
+          .attr("opacity", 0.6)
+          .attr("transform", d => {
+
+            const [x, y] = projection([d.long, d.lat]);
+            
+            return `translate(${x}, ${y})`;
+          })
+        .call(enter => enter
+          .transition()
+          .duration(1000)
+          .delay((_, i) => i * 2)
+          .attr("r", d => sizeScale(d.Size)))
+    );
+
+    // LEGENDS ------------------------------------------------
+
+    // Title for Color Legend
+    svg.append("text")
+    .text("Recentness of Data:")
+    .attr("x", width - margin.right * 6)
+    .attr("y", 470)
+    .style("font-size", "1rem")
+    .style("font-weight", "bold")
+
+  // Color dots for Color Legend
+  svg.selectAll(".legend-dot")
+    .data(colorsArr)
     .join("circle")
-    .attr("class", "capital-points")
-    .attr("r", d => sizeScale(d.Size))
-    .on("mouseover", tipMouseover)
-    .on("mouseout", tipMouseout)
-    .attr("fill", "skyblue")
+    .attr("class", "legend-dot")
+    .attr("cx", width - margin.right * 4.5 - 10)
+    .attr("cy", (_, i) => 490 + i * 20)
+    .attr("r", 6)
+    .style("fill", d => d)
     .attr("stroke", "black")
-    .attr("opacity", 0.4)
-    .attr("transform", d => {
+    .attr("opacity", "0.6")
 
-      const [x, y] = projection([d.long, d.lat])
+  // Color labels for Color Legend
+  svg.selectAll(".legend-genre")
+    .data(["Old", "Recent", "New"])
+    .join("text")
+    .attr("class", "legend-genre")
+    .attr("x", width - margin.right * 4.3)
+    .attr("y", (_, i) => 492 + i * 20)
+    .text(d => d)
+    .style("font-size", "15px")
+    .attr("alignment-baseline","middle")
 
-      return `translate(${x}, ${y})`
-    });
+  // Title for Size Legend
+  svg.append("text")
+    .text("Airport Size:")
+    .attr("x", width - margin.right * 4)
+    .attr("y", 355)
+    .style("font-size", "1rem")
+    .style("font-weight", "bold")
 
+  // Circle Sizes for size Legend
+  svg.selectAll(".legend-size")
+    .data([2, 3])
+    .join("circle")
+    .attr("class", "legend-size")
+    .attr("cx", d => width - margin.right * 3 - sizeScale(d) / 2 - 5)
+    .attr("cy", (_, i) => 378 + i * 35)
+    .attr("r", d => sizeScale(d))
+    .style("fill", "white")
+    .attr("stroke", "black")
+    .attr("opacity", "0.6")
+
+  // Size for Size Legend
+  svg.selectAll(".legend-size-label")
+    .data(["Medium", "Large"])
+    .join("text")
+    .attr("class", "legend-size-label")
+    .attr("x", width - margin.right * 2.5 - 5)
+    .attr("y", (_, i) => 380 + i * 35)
+    .text(d => d)
+    .style("font-size", "15px")
+    .attr("alignment-baseline","middle")
 });
-
-
-// TO ADD:
-/*
-
-- Change color shade b/w green and gray based on recentness of updated data
-- Hover over tooltips 
-- Hover over opacity 1
-- Add legend
-- Add Title
-
-*/
