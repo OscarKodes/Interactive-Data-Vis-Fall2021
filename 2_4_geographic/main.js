@@ -1,7 +1,8 @@
-/* CONSTANTS AND GLOBALS */
+// CONSTANTS
 const width = window.innerWidth * 0.8,
   height = window.innerHeight * 0.8,
-  margin = { top: 25, bottom: 50, left: 50, right: 25 };
+  margin = { top: 25, bottom: 50, left: 50, right: 25 },
+  colorsArr = ["#999999", "#66cc66", "#33ff33"];
 
 /**
  * LOAD DATA
@@ -25,37 +26,34 @@ Promise.all([
     .fitSize([width - margin.left - margin.right,
               height - margin.top - margin.bottom],
               usMapData);
+              // Fit size tells D3 to fit usMapData into the specified x and y area
 
   // Sizes for airport dots
   const sizeScale = d3.scaleSqrt()
       .domain([2, 3])
       .range([5, 10])
   
-  // Color scale and constants
+  // Get numerical value of each date
   const dateArr = airportData.map(d => Date.parse(d.last_update));
-  const dateDomain = [
-    d3.min(dateArr),
-    d3.median(dateArr),
-    d3.max(dateArr)
-  ];
-  const colorsArr = ["#999999", "#66cc66", "#33ff33"];
-
+  const dateDomain = [d3.min(dateArr), d3.median(dateArr), d3.max(dateArr)];
+  
+  // Colors for recentness of airport data
   const colorScale = d3.scaleLinear()
       .domain(dateDomain)
       .range(colorsArr);
 
   // HTML ELEMENTS======================================
 
-  // create svg
+  // CREATE SVG
   const svg = d3.select("#container")
     .append("svg")
     .attr("width", width)
     .attr("height", height);
 
-  // path generator for map
+  // PATH GENERATOR FOR MAP
   const pathGen = d3.geoPath(projection);
 
-  // draw the us map using the pathgen
+  // DRAW THE US MAP USING THE PATH GEN
   const states = svg.selectAll(".state-path")
       .data(usMapData.features)
       .join("path")
@@ -64,14 +62,15 @@ Promise.all([
       .attr("fill", "transparent")
       .attr("d", pathGen)
   
-  
-  // INVISIBLE TOOLTIP DIV -----------------------------------
+  // TOOL TIP STUFF ------------------------------------------
+
+  // Invisible tooltip div
   const tooltip = d3.select("#container")
                     .append("div")
                     .attr("class", "tooltip")
                     .style("opacity", 0);
 
-  // TOOLTIP MOUSE OVER EVENT HANDLER ------------------------
+  // Tooltip Mouse Handler
   const tipMouseover = function(event, d) {
 
     // Dynamic html to put inside tooltip div catered to specific film
@@ -95,7 +94,7 @@ Promise.all([
       .style("opacity", 1);
   };
 
-  // TOOLTIP MOUSE OUT EVENT HANDLER ----------------------
+  // Tooltip Mouse Out Handler
   const tipMouseout = function(d) {
       tooltip.transition()
           .duration(200) 
@@ -108,7 +107,7 @@ Promise.all([
       .style("opacity", 0.5);
   };
 
-  // DRAW AIRPORT POINTS/CIRCLES
+  // DRAW AIRPORT POINTS/CIRCLES ---------------------------------
   svg.selectAll(".airport-points")
     .data(airportData)
     .join(
@@ -134,15 +133,15 @@ Promise.all([
           .attr("r", d => sizeScale(d.Size)))
     );
 
-    // LEGENDS ------------------------------------------------
+  // LEGENDS ------------------------------------------------
 
-    // Title for Color Legend
-    svg.append("text")
-    .text("Recentness of Data:")
-    .attr("x", width - margin.right * 6)
-    .attr("y", 470)
-    .style("font-size", "1rem")
-    .style("font-weight", "bold")
+  // Title for Color Legend
+  svg.append("text")
+  .text("Recentness of Data:")
+  .attr("x", width - margin.right * 6)
+  .attr("y", 470)
+  .style("font-size", "1rem")
+  .style("font-weight", "bold")
 
   // Color dots for Color Legend
   svg.selectAll(".legend-dot")
