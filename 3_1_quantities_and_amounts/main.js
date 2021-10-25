@@ -56,7 +56,7 @@ let state = {
 };
 
 /* LOAD DATA */
-d3.csv('squirrelActivities.csv', d3.autoType).then(raw_data => {
+d3.csv('CLEANED_OscarRaces.csv', d3.autoType).then(raw_data => {
   console.log("data", raw_data);
   // save our data to application state
   state.data = raw_data;
@@ -69,7 +69,7 @@ function init() {
   /* SCALES */
   // xscale - categorical, activity
   xScale = d3.scaleBand()
-    .domain(state.data.map(d=> d.activity))
+    .domain(state.data.map(d=> d.races))
     .range([0, width]) // visual variable
     .paddingInner(.2)
 
@@ -97,6 +97,6 @@ function draw() {
     .join("rect")
     .attr("width", xScale.bandwidth())
     .attr("height", d=> height - yScale(d.count))
-    .attr("x", d=>xScale(d.activity))
+    .attr("x", d=>xScale(d.races))
     .attr("y", d=> yScale(d.count))
 }
