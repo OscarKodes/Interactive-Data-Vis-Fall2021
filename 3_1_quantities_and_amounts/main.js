@@ -6,10 +6,9 @@ const width = window.innerWidth * 0.8,
     left: 50,
     right: 50,
     bottom: 60
-  },
-  radius = 5;
+  };
 
-let xScale, yScale;
+let xScale, yScale, colorScale;
 
 // APPLICATION STATE ########################
 let state = {
@@ -37,6 +36,10 @@ function init() {
     .domain(d3.extent(state.data, d => d.count))
     .range([height - margin.top, margin.bottom])
     .nice();
+  
+  colorScale = d3.scaleOrdinal()
+    .domain(state.data.map(d => d.races))
+    .range(d3.schemePastel1);
 
   draw(); 
 }
@@ -62,4 +65,13 @@ function draw() {
     .attr("width", xScale.bandwidth())
     .attr("x", d => xScale(d.races))
     .attr("y", d => yScale(d.count))
+    .attr("fill", d => colorScale(d.races))
+    .attr("stroke", "black")
 }
+
+
+
+// NEXT STEPS@@@@@@@@@@@@@@@@@@@@@
+// add axis and labels
+// add bar labels
+// Transition to emphasize the flattened minorities
