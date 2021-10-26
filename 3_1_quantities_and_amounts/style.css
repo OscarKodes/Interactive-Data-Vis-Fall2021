@@ -18,3 +18,8 @@ h3 {
 p {
   font-size: 1em;
 }
+
+#data-source {
+  text-decoration: none;
+  font-size: .8rem;
+}
