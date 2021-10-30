@@ -34,11 +34,11 @@ d3.json("environmentRatings.json", d3.autoType).then(raw_data => {
 function init() {
   // + SCALES
   xScale = d3.scaleLinear()
-    .domain([0, d3.max(state.data.map(d => d.ideologyScore2020))])
+    .domain(d3.extent(state.data, d => d.ideologyScore2020))
     .range([margin.left, width - margin.right]);
 
   yScale = d3.scaleLinear()
-    .domain([0, d3.max(state.data.map(d => d.envScore2020))])
+    .domain(d3.extent(state.data, d => d.envScore2020))
     .range([height - margin.top, margin.bottom]);
 
   colorScale = d3.scaleOrdinal()
@@ -51,6 +51,27 @@ function init() {
 
 
   // + UI ELEMENT SETUP
+  const selectMenu = d3.select("#dropdown")
+
+  const menuData = [
+    {key: "All", label: "All"},
+    {key: "R", label: "Republican"},
+    {key: "D", label: "Democrat"}
+  ];
+
+  selectMenu.selectAll("option")
+    .data(menuData)
+    .join("option")
+    .attr("value", d => d.key)
+    .text(d => d.label);
+
+  // Event listener
+  selectMenu.on("change", event => {
+
+    state.selectedParty = event.target.value;
+
+    draw();
+  });
 
 
   // + CREATE SVG ELEMENT
@@ -86,16 +107,30 @@ function draw() {
     .join(
       enter => enter
         .append("circle")
-        .attr("class", "dot")
-        .attr("cx", d => xScale(d.ideologyScore2020))
-        .attr("cy", d => yScale(d.envScore2020))
-        .attr("r", radius)
-        .attr("fill", d => colorScale(d.Party))
+          .attr("class", "dot")
+          .attr("cx", d => xScale(d.ideologyScore2020))
+          .attr("cy", d => yScale(d.envScore2020))
+          .attr("r", radius * 1.5)
+          .attr("fill", d => colorScale(d.Party))
+        .call(enter => enter.transition()
+          .duration(500)
+          .delay((_, i) => i * 1)
+          .attr("r", radius)
+          ),
 
-      // // + HANDLE UPDATE SELECTION
-      // update => update,
+      // + HANDLE UPDATE SELECTION
+      update => update
+        .attr("r", radius * 1.5)
+        .attr("fill", "white")
+        .call(update => update.transition()
+          .duration(1000)
+          .attr("r", radius))
+          .attr("fill", d => colorScale(d.Party)),
 
-      // // + HANDLE EXIT SELECTION
-      // exit => exit
+      // + HANDLE EXIT SELECTION
+      exit => exit
+        .call(exit => exit.transition()
+          .duration(500)
+          .attr("r", 0))
     );
 }
