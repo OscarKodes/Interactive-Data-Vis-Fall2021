@@ -41,6 +41,10 @@ function init() {
     .domain([0, d3.max(state.data.map(d => d.envScore2020))])
     .range([height - margin.top, margin.bottom]);
 
+  colorScale = d3.scaleOrdinal()
+    .domain(["R", "D", "I"])
+    .range(["red", "blue", "purple"]);
+
   // + AXES
   const xAxis = d3.axisBottom(xScale);
   const yAxis = d3.axisLeft(yScale);
@@ -74,20 +78,24 @@ function init() {
 function draw() {
 
   // + FILTER DATA BASED ON STATE
-  // const filteredData = state.data
-  //   // .filter(d => state.selectedParty === "All" || state.selectedParty === d.Party)
+  const filteredData = state.data
+        .filter(d => state.selectedParty === "All" || state.selectedParty === d.Party)
 
-  // const dot = svg
-  //   .selectAll("circle")
-  //   .data(filteredData, d => d.BioID)
-  //   .join(
-  //     // + HANDLE ENTER SELECTION
-  //     enter => enter,
+  const dots = svg.selectAll("circle.dot")
+    .data(filteredData, d => d.BioID)
+    .join(
+      enter => enter
+        .append("circle")
+        .attr("class", "dot")
+        .attr("cx", d => xScale(d.ideologyScore2020))
+        .attr("cy", d => yScale(d.envScore2020))
+        .attr("r", radius)
+        .attr("fill", d => colorScale(d.Party))
 
-  //     // + HANDLE UPDATE SELECTION
-  //     update => update,
+      // // + HANDLE UPDATE SELECTION
+      // update => update,
 
-  //     // + HANDLE EXIT SELECTION
-  //     exit => exit
-  //   );
+      // // + HANDLE EXIT SELECTION
+      // exit => exit
+    );
 }
