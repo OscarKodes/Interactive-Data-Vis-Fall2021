@@ -237,4 +237,4 @@ function draw() {
 // Sort dots by largest to smallest budget
 // Add tooltip using html div and draw for update
 // Add data source
-// 
+// Clean up all comments and code
