@@ -27,7 +27,7 @@ let state = {
 /* LOAD DATA */
 d3.csv("Movie-Ratings.csv", d3.autoType).then(raw_data => {
   // + SET YOUR DATA PATH
-  state.data = raw_data;
+  state.data = raw_data.sort((a, b) => b["Budget (million $)"] - a["Budget (million $)"]);
   init();
 });
 
@@ -210,6 +210,18 @@ function draw() {
           .attr("fill", d => colorScale(d.Genre))
           .attr("stroke", "black")
           .attr("opacity", "0.4")
+          .on("mouseover", function() {
+            d3.select(this)
+              .transition()
+              .duration("100")
+              .style("opacity", 1)
+          })
+          .on("mouseout", function(d) {
+            d3.select(this)
+              .transition()
+              .duration("200")
+              .style("opacity", "0.4")
+          })
         .call(enter => enter.transition()
           .duration(500)
           .attr("r", d => sizeScale(d["Budget (million $)"]))
@@ -232,9 +244,14 @@ function draw() {
 }
 
 
-// Add clickable genres
-// Add hover dot highlight
+
 // Sort dots by largest to smallest budget
-// Add tooltip using html div and draw for update
-// Add data source
+// Add hover dot highlight
+
 // Clean up all comments and code
+
+// Add data source
+
+// Add clickable genres
+// Add tooltip using html div and draw for update
+
