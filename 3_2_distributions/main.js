@@ -1,4 +1,4 @@
-/* CONSTANTS AND GLOBALS */
+// CONSTANTS ################################################
 const height = window.innerHeight * 0.8;
 const margin = {
     top: 50,
@@ -7,34 +7,39 @@ const margin = {
     bottom: 50
   },
   radius = 5;
+const allGenres = ["Comedy", "Drama", "Adventure", "Thriller", "Horror", "Action", "Romance"];
+const allColors = ["Yellow", "Red", "Green", "Purple", "Black", "Blue", "Pink"];
 
-// Limiting the width, 
-// so the plot isn't stretched too much if have wide screen
+// Limiting the width to prevent a stretched graph
 let width = window.innerWidth * 0.8;
 width = width > height ? height + margin.right : width;
 
+// Variables to be assigned in init() and used in draw()
 let svg, 
 xScale, 
 yScale, 
 colorScale;
 
-/* APPLICATION STATE */
+// APPLICATION STATE #########################################
 let state = {
   data: [],
   selectedGenre: "All" 
 };
 
-/* LOAD DATA */
+// IMPORT IN DATA ############################################
 d3.csv("Movie-Ratings.csv", d3.autoType).then(raw_data => {
-  // + SET YOUR DATA PATH
+  
+  // Save the imported data into state object & Sort by budget size
   state.data = raw_data.sort((a, b) => b["Budget (million $)"] - a["Budget (million $)"]);
+  
+  // Call init() function right after importing data
   init();
 });
 
-/* INITIALIZING FUNCTION */
-// this will be run *one time* when the data finishes loading in
+// INITIALIZING FUNTION ######################################
 function init() {
-  // + SCALES
+  
+  // SCALES =================================================
   xScale = d3.scaleLinear()
     .domain(d3.extent(state.data, d => d["Rotten Tomatoes Ratings %"]))
     .range([margin.left, width - margin.right]);
@@ -42,10 +47,6 @@ function init() {
   yScale = d3.scaleLinear()
     .domain(d3.extent(state.data, d => d["Audience Ratings %"]))
     .range([height - margin.top, margin.bottom]);
-
-  // Placing genres and colors in variables to be reused in colorScale & Legend
-  const allGenres = ["Comedy", "Drama", "Adventure", "Thriller", "Horror", "Action", "Romance"];
-  const allColors = ["Yellow", "Red", "Green", "Purple", "Black", "Blue", "Pink"];
 
   colorScale = d3.scaleOrdinal()
     .domain(allGenres)
@@ -55,30 +56,37 @@ function init() {
     .domain([1, d3.max(state.data, d => d["Budget (million $)"])])
     .range([3, 16]);
 
-  // + UI ELEMENT SETUP
-  const selectMenu = d3.select("#dropdown")
+  // USER INTERFACE SETUP FOR VIS OPTIONS ===================
 
+  // Grab elements for listeners and values
+  const selectMenu = d3.select("#dropdown");
+
+  // Create array for holding vis options 
   const menuData = [{key: "All", label: "All"}];
 
+  // Fill menuData with the possible data vis options
   allGenres.map(genre => {
     menuData.push({key: genre, label: genre})
   });
 
+  // Create options in UI menu for user to click
   selectMenu.selectAll("option")
     .data(menuData)
     .join("option")
     .attr("value", d => d.key)
     .text(d => d.label);
 
-  // Event listener
+  // Event listener for user click
   selectMenu.on("change", event => {
+
+    // Grab the user's selected genre
     state.selectedGenre = event.target.value;
 
+    // Update the vis once the user clicks
     draw();
   });
 
-
-  // + CREATE SVG ELEMENT
+  // CREATE MAIN SVG ELEMENT ==================================
   svg = d3.select("#container")
     .append("svg")
     .attr("height", height)
@@ -95,12 +103,12 @@ function init() {
 
   // AXIS LABELS ----------------------------------------------
   svg.append("text")
-  .attr("text-anchor", "end")
-  .attr("x", width / 2 + margin.left * 2)
-  .attr("y", height - 6)
-  .style("font-weight", "bold")
-  .style("font-size", "1.2rem")
-  .text("Rotten Tomatoes Ratings %");
+    .attr("text-anchor", "end")
+    .attr("x", width / 2 + margin.left * 2)
+    .attr("y", height - 6)
+    .style("font-weight", "bold")
+    .style("font-size", "1.2rem")
+    .text("Rotten Tomatoes Ratings %");
 
   svg.append("text")
     .attr("text-anchor", "end")
@@ -111,7 +119,7 @@ function init() {
     .attr("transform", "rotate(-90)")
     .text("Audience Ratings %");
 
-    // LEGENDS ------------------------------------------------
+  // LEGENDS ------------------------------------------------
 
   // Title for Genre Legend
   svg.append("text")
@@ -183,21 +191,18 @@ function init() {
     .style("font-size", "15px")
     .attr("alignment-baseline","middle")
 
-
-  draw(); // calls the draw function
+  // Call draw function once Init() is finished for the first time
+  draw(); 
 }
 
-/* DRAW FUNCTION */
-// we call this every time there is an update to the data/state
+// DRAW FUNCTION ####################################################
 function draw() {
 
-  // + FILTER DATA BASED ON STATE
+  // Filter wanted data based on current state
   const filteredData = state.data
-        .filter(d => state.selectedGenre === "All" || state.selectedGenre === d.Genre)
+        .filter(d => state.selectedGenre === "All" || state.selectedGenre === d.Genre);
 
-  console.log(state.selectedGenre);
-  console.log(filteredData);
-
+  // Draw the data points on the SVG scatterplot
   const dots = svg.selectAll("circle.dot")
     .data(filteredData, d => d.Film)
     .join(
@@ -213,28 +218,22 @@ function draw() {
           .on("mouseover", function() {
             d3.select(this)
               .transition()
-              .duration("100")
               .style("opacity", 1)
           })
           .on("mouseout", function(d) {
             d3.select(this)
               .transition()
-              .duration("200")
               .style("opacity", "0.4")
           })
         .call(enter => enter.transition()
           .duration(500)
           .attr("r", d => sizeScale(d["Budget (million $)"]))
           ),
-
-      // + HANDLE UPDATE SELECTION
       update => update
         .attr("opacity", "1")
         .call(update => update.transition()
           .duration(1000)
           .attr("opacity", "0.4")),
-
-      // + HANDLE EXIT SELECTION
       exit => exit
         .call(exit => exit.transition()
           .duration(500)
@@ -244,11 +243,6 @@ function draw() {
 }
 
 
-
-// Sort dots by largest to smallest budget
-// Add hover dot highlight
-
-// Clean up all comments and code
 
 // Add data source
 

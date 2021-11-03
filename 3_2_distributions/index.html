@@ -9,6 +9,7 @@
 
 <body>
 
+
   <p class="plot-title">
     Rotten Tomatoes vs Audience Movie Ratings
     <br>
@@ -16,11 +17,20 @@
   </p>
 
   <!-- Party dropdown selection menu -->
-  <label for="dropdown">Filter Selection</label>
-  <select id="dropdown" name="dropdown"></select>
+  <div id="user-menu">
+    <label id="dropdown-label" for="dropdown">Filter Selection</label>
+    <select id="dropdown" name="dropdown"></select>
+  </div>
+
 
   <!-- SVG container -->
   <div id="container"> </div>
+
+  <!-- Data Source Link -->
+  <a id="data-source" href="https://www.superdatascience.com/pages/rcourse">
+    Data Source</a>
+
+
 
   <!-- D3 CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.1.1/d3.min.js"></script>
