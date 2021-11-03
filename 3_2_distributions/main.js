@@ -56,36 +56,6 @@ function init() {
     .domain([1, d3.max(state.data, d => d["Budget (million $)"])])
     .range([3, 16]);
 
-  // USER INTERFACE SETUP FOR VIS OPTIONS ===================
-
-  // Grab elements for listeners and values
-  const selectMenu = d3.select("#dropdown");
-
-  // Create array for holding vis options 
-  const menuData = [{key: "All", label: "All"}];
-
-  // Fill menuData with the possible data vis options
-  allGenres.map(genre => {
-    menuData.push({key: genre, label: genre})
-  });
-
-  // Create options in UI menu for user to click
-  selectMenu.selectAll("option")
-    .data(menuData)
-    .join("option")
-    .attr("value", d => d.key)
-    .text(d => d.label);
-
-  // Event listener for user click
-  selectMenu.on("change", event => {
-
-    // Grab the user's selected genre
-    state.selectedGenre = event.target.value;
-
-    // Update the vis once the user clicks
-    draw();
-  });
-
   // CREATE MAIN SVG ELEMENT ==================================
   svg = d3.select("#container")
     .append("svg")
@@ -191,6 +161,54 @@ function init() {
     .style("font-size", "15px")
     .attr("alignment-baseline","middle")
 
+  // USER INTERFACE SETUP FOR VIS OPTIONS ===================
+
+  // Grab elements for listeners and values
+  const selectMenu = d3.select("#dropdown");
+  const selectGenreText = d3.selectAll(".legend-genre");
+  const selectGenreColor = d3.selectAll(".legend-dot");
+
+  // Create array for holding vis options 
+  const menuData = [{key: "All", label: "All"}];
+
+  // Fill menuData with the possible data vis options
+  allGenres.map(genre => {
+    menuData.push({key: genre, label: genre})
+  });
+
+  // Create options in UI menu for user to click
+  selectMenu.selectAll("option")
+    .data(menuData)
+    .join("option")
+    .attr("value", d => d.key)
+    .text(d => d.label);
+
+  // Listen for user changes on menu and call draw
+  selectMenu.on("change", event => {
+    state.selectedGenre = event.target.value;
+    draw();
+  });
+
+  // Listen for clicks on Genres or Colors
+  selectGenreText.on("click", (_, d) => updateSelection(d));
+  selectGenreColor.on("click", (_, d) => updateSelection(d));
+
+  // Update selected genre and call draw
+  const updateSelection = (d) => {
+
+    // Get index of genre or color
+    let genreIdx = allGenres.indexOf(d) >= 0 ?
+                    allGenres.indexOf(d) :
+                    allColors.indexOf(d);
+
+    // Change menu option to current select option
+    document.getElementById("dropdown").options.selectedIndex = genreIdx + 1;
+
+    state.selectedGenre = allGenres[genreIdx];
+
+    draw();
+  }
+
   // Call draw function once Init() is finished for the first time
   draw(); 
 }
@@ -243,8 +261,6 @@ function draw() {
 }
 
 
-
-// Add data source
 
 // Add clickable genres
 // Add tooltip using html div and draw for update
