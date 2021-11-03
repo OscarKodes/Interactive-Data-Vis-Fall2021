@@ -42,3 +42,17 @@ p {
   font-size: 0.85rem;
   font-weight: bold;
 }
+
+#tooltip {
+  position: absolute;
+  font-size: 12px;
+  width:  auto;
+  height: auto;
+  pointer-events: none;
+  background-color: white;
+  text-align: left;
+  padding: 0.5rem;
+  border-radius: 1rem;
+  border-bottom-right-radius: 0;
+  opacity: 0;
+}

@@ -220,48 +220,79 @@ function draw() {
   const filteredData = state.data
         .filter(d => state.selectedGenre === "All" || state.selectedGenre === d.Genre);
 
-  // Draw the data points on the SVG scatterplot
+  // Tooltip Handling =============================================
+  const tooltip = d3.select("#tooltip");
+
+  // Tooltip Mouseover 
+  const tipMouseover = function(event, d) {
+
+    const tooltipHTML = `<b>Title:</b> ${d.Film}<br/>
+                          <b>Genre:</b> ${d.Genre}</span><br/>
+                          <b>Rotten Tomatoes:</b> ${d["Rotten Tomatoes Ratings %"]}%<br/>
+                          <b>Audience Ratings:</b> ${d["Audience Ratings %"]}%<br/> 
+                          <b>Budget:</b> $${d["Budget (million $)"]} million (USD)<br>
+                          <b>Year:</b> ${d["Year of release"]}`;
+
+    let color = colorScale(d.Genre);
+    let size = sizeScale(d["Budget (million $)"]);
+
+    tooltip.html(tooltipHTML)
+      .style("left", ((d.Film.length >= 20 ? // Dynamic positioning if long film title
+                        event.pageX - 160 - ((d.Film.length - 19) * 5) : 
+                        event.pageX - 160) + "px"))  
+      .style("top", (event.pageY - 120 - 0.5 * size + "px"))
+      .style("border", `${color} solid 0.2rem`) // Same border color as genre
+      .style("outline", "1px solid black")
+      .transition()
+        .duration(100) 
+        .style("opacity", .85) 
+
+    d3.select(this)
+      .transition()
+      .duration(100)
+      .style("opacity", 1);
+  };
+
+  // Tooltip Mouseout
+  const tipMouseout = function(d) {
+      tooltip.transition()
+          .duration(200) 
+          .style("opacity", 0); // Make tooltip div invisible
+
+      d3.select(this)
+      .transition()
+      .duration(200)
+      .style("opacity", 0.5);
+  };
+
+  // Draw SVG Scatterplot ==========================================
   const dots = svg.selectAll("circle.dot")
-    .data(filteredData, d => d.Film)
-    .join(
-      enter => enter
-        .append("circle")
-          .attr("class", "dot")
-          .attr("transform", d => `translate(${xScale(d["Rotten Tomatoes Ratings %"])}, 
-                                  ${yScale(d["Audience Ratings %"])})`)
-          .attr("r", 0)
-          .attr("fill", d => colorScale(d.Genre))
-          .attr("stroke", "black")
-          .attr("opacity", "0.4")
-          .on("mouseover", function() {
-            d3.select(this)
-              .transition()
-              .style("opacity", 1)
-          })
-          .on("mouseout", function(d) {
-            d3.select(this)
-              .transition()
-              .style("opacity", "0.4")
-          })
-        .call(enter => enter.transition()
-          .duration(500)
-          .attr("r", d => sizeScale(d["Budget (million $)"]))
-          ),
-      update => update
-        .attr("opacity", "1")
-        .call(update => update.transition()
-          .duration(1000)
-          .attr("opacity", "0.4")),
-      exit => exit
-        .call(exit => exit.transition()
-          .duration(500)
-          .attr("r", 0))
-          .remove()
-    );
+  .data(filteredData, d => d.Film)
+  .join(
+    enter => enter
+      .append("circle")
+        .attr("class", "dot")
+        .attr("transform", d => `translate(${xScale(d["Rotten Tomatoes Ratings %"])}, 
+                                ${yScale(d["Audience Ratings %"])})`)
+        .attr("r", 0)
+        .attr("fill", d => colorScale(d.Genre))
+        .attr("stroke", "black")
+        .attr("opacity", "0.4")
+        .on("mouseover", tipMouseover)
+        .on("mouseout", tipMouseout)
+      .call(enter => enter.transition()
+        .duration(500)
+        .attr("r", d => sizeScale(d["Budget (million $)"]))
+        ),
+    update => update
+      .attr("opacity", "1")
+      .call(update => update.transition()
+        .duration(1000)
+        .attr("opacity", "0.4")),
+    exit => exit
+      .call(exit => exit.transition()
+        .duration(500)
+        .attr("r", 0))
+        .remove()
+  );
 }
-
-
-
-// Add clickable genres
-// Add tooltip using html div and draw for update
-
