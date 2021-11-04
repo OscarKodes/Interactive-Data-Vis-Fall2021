@@ -84,7 +84,7 @@ function draw() {
       `translate(${width / 2 - margin.right * 2}, ${height - margin.bottom / 4})`)
     .attr("font-size", "1.15rem")
     .attr("font-weight", "bold")
-    .text("Race of Oscar Award Winner");
+    .text("Race of Award Winner");
 
   // X AXIS TITLE
   svg.append("text")
